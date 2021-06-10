@@ -1,6 +1,7 @@
 from pymorphy2 import MorphAnalyzer
 from pymorphy2.tokenizers import simple_word_tokenize
 import spacy
+from cltk import NLP
 
 
 class Preprocesser:
@@ -16,8 +17,7 @@ class Preprocesser:
             "shake": "en_core_web_sm",
             "ger": "de_core_news_sm",
             "ita": "it_core_news_sm",
-            "esp": "es_core_news_sm",
-            "cal": "es_core_news_sm"
+            "span": "es_core_news_sm"
         }
         self.cltk_analyzers = {
             "rom": "lat",
@@ -27,7 +27,8 @@ class Preprocesser:
             self.analyzer = MorphAnalyzer()
         elif language in self.spacy_analyzers.keys():
             self.analyzer = spacy.load(self.spacy_analyzers[language])
-        # TODO: CLTK analyzers
+        elif language in self.cltk_analyzers.keys():
+            self.analyzer = NLP(language=self.cltk_analyzers[language])
 
     def lemmatize(self, line):
         self.lemmas = []
@@ -37,7 +38,9 @@ class Preprocesser:
                              for token in simple_word_tokenize(line)]
         elif self.language in self.spacy_analyzers.keys():
             play_lemmas = [token.lemma_ for token in self.analyzer(line)]
-        # TODO: CLTK analyzers
+        elif self.language in self.cltk_analyzers.keys():
+            print(self.language)
+            play_lemmas = self.analyzer.analyze(text=line).lemmata
         self.lemmas += play_lemmas
         return " ".join(play_lemmas)
 
@@ -49,7 +52,10 @@ class Preprocesser:
                         for token in simple_word_tokenize(line)]
         elif self.language in self.spacy_analyzers.keys():
             play_pos = [token.pos_ for token in self.analyzer(line)]
-        # TODO: CLTK analyzers
+        elif self.language in self.cltk_analyzers.keys():
+            print(self.language)
+            play_pos = self.analyzer.analyze(text=line).pos
+        return play_pos
 
     def count_items(self, play_items):
         item_dict = {}

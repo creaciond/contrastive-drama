@@ -136,3 +136,8 @@ dmypy.json
 
 # raw data
 data/
+*_out/
+
+# logging
+download.log
+processing.log
